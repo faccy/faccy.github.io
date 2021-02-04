@@ -1,0 +1,362 @@
+<!DOCTYPE html><html lang="zh_CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>01背包（动态规划解法） | Hexo</title><meta name="author" content="Faccy"><meta name="copyright" content="Faccy"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="01背包01背包是一个很经典的问题，题目如下：有n件物品和一个最多能装重量为W 的背包。第i件物品的重量是weight[i]，得到的价值是value[i] 。每件物品只能用一次，问怎样装载能使背包里物品的价值最大。 这里我们用一组简单的数据来进行示例：假设背包最大容量为5    物品 重量 价值    物品0 1 15   物品1 2 20   物品2 3 25   物品3 4 30    它与普">
+<meta property="og:type" content="article">
+<meta property="og:title" content="01背包（动态规划解法）">
+<meta property="og:url" content="http://example.com/2021/02/04/01%E8%83%8C%E5%8C%85%EF%BC%88%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E8%A7%A3%E6%B3%95%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="01背包01背包是一个很经典的问题，题目如下：有n件物品和一个最多能装重量为W 的背包。第i件物品的重量是weight[i]，得到的价值是value[i] 。每件物品只能用一次，问怎样装载能使背包里物品的价值最大。 这里我们用一组简单的数据来进行示例：假设背包最大容量为5    物品 重量 价值    物品0 1 15   物品1 2 20   物品2 3 25   物品3 4 30    它与普">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png">
+<meta property="article:published_time" content="2021-02-04T03:35:47.163Z">
+<meta property="article:modified_time" content="2021-02-04T06:41:05.272Z">
+<meta property="article:author" content="Faccy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2021/02/04/01%E8%83%8C%E5%8C%85%EF%BC%88%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E8%A7%A3%E6%B3%95%EF%BC%89/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-02-04 14:41:05'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/takagisan.png'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">5</div></a></div></div></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Hexo</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">01背包（动态规划解法）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-02-04T03:35:47.163Z" title="Created 2021-02-04 11:35:47">2021-02-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-02-04T06:41:05.272Z" title="Updated 2021-02-04 14:41:05">2021-02-04</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">Comments:</span><a href="/2021/02/04/01%E8%83%8C%E5%8C%85%EF%BC%88%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E8%A7%A3%E6%B3%95%EF%BC%89/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/2021/02/04/01%E8%83%8C%E5%8C%85%EF%BC%88%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E8%A7%A3%E6%B3%95%EF%BC%89/" itemprop="commentCount"></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="01背包"><a href="#01背包" class="headerlink" title="01背包"></a>01背包</h1><p>01背包是一个很经典的问题，题目如下：有n件物品和一个最多能装重量为W 的背包。第i件物品的重量是weight[i]，得到的价值是value[i] 。每件物品只能用一次，问怎样装载能使背包里物品的价值最大。</p>
+<p>这里我们用一组简单的数据来进行示例：假设背包最大容量为5</p>
+<table>
+<thead>
+<tr>
+<th>物品</th>
+<th>重量</th>
+<th>价值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物品0</td>
+<td>1</td>
+<td>15</td>
+</tr>
+<tr>
+<td>物品1</td>
+<td>2</td>
+<td>20</td>
+</tr>
+<tr>
+<td>物品2</td>
+<td>3</td>
+<td>25</td>
+</tr>
+<tr>
+<td>物品3</td>
+<td>4</td>
+<td>30</td>
+</tr>
+</tbody></table>
+<hr>
+<p>它与普通背包的区别在于，每个物品要么放，要么不放，而普通背包是可以放一部分的，因而普通背包可以通过贪心算法求解，01背包却不行。我们先来看看最不用动脑的暴力解法，即遍历每一种装载的可能，n个物品都有放与不放两种情况，因此暴力的时间复杂度为O(2^n)，指数级的时间复杂度不是很理想，如果在竞赛题里基本上是不可能AC的，于是我们再用动态规划来求解：</p>
+<h2 id="1-确定dp数组含义"><a href="#1-确定dp数组含义" class="headerlink" title="1.确定dp数组含义"></a>1.确定dp数组含义</h2><p><font color=#09f>题目的主干是n件物品放进容量（可装重量）为W的背包的最大价值。所以定义一个二维数组dp，dp[i] [j]表示将前i件物品选择后放进容量为j的背包的最大价值，最终dp[n-1] [W]就是我们要求的最大价值（物品下标从0开始，所以n-1就已经是n件物品了）。</font></p>
+<h2 id="2-找出状态转移方程"><a href="#2-找出状态转移方程" class="headerlink" title="2.找出状态转移方程"></a>2.找出状态转移方程</h2><p><font color=#09f>状态转移方程就是前后状态之间的关系，有了这个方程我们就可以在遍历数组时通过前面的值推出当前的元素值。</font></p>
+<p><font color=#09f>对应到题目中，我们可以从两个方面来找，对于dp[i] [j]，我们可以选择把第i+1个物品不放入背包，那么它也就等同于只有i个物品，那么dp[i] [j]=dp[i-1] [j]；如果选择将第i+1个物品放入背包，那么就要先预留好第i+1个物品的位置，也就是先找到i个物品放入容量为当前背包容量减去第i+1个物品的重量的最大价值，然后加上第i+1个物品的价值，也就是dp[i] [j]=dp[i-1] [j-weight[i]]+value[i]。然后再在二者中取最大值即可。即：</font></p>
+<p><font color=#09f><strong>dp[i] [j]=max(dp[i-1] [j],dp[i-1] [j-weight[i]]+value[i])</strong></font></p>
+<h2 id="3-初始化"><a href="#3-初始化" class="headerlink" title="3.初始化"></a>3.初始化</h2><p><font color=#09f>初始化主要是当i和j为零的时候，因为后面的元素值都要根据它们推出。</font></p>
+<p><font color=#09f>当i=0时，就是只有背包容量j大于等于第一件物品的重量weight[0]时，对应的元素值为value[0]；否则为0。</font></p>
+<p><font color=#09f>当j=0时，即背包容量为0，那么什么也装不下，直接初始化为0。</font></p>
+<table>
+<thead>
+<tr>
+<th align="center">i \ j</th>
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+<th align="center">3</th>
+<th align="center">4</th>
+<th align="center">5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">物品0</td>
+<td align="center">0</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">15</td>
+</tr>
+<tr>
+<td align="center">物品1</td>
+<td align="center">0</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">物品2</td>
+<td align="center">0</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">物品3</td>
+<td align="center">0</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> dp[MAXN][MAXN]=&#123;<span class="number">0</span>&#125;;<span class="comment">//数组大小根据情况设置</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;=W;j++)&#123;<span class="comment">//i=0时，遍历所有的j给元素赋值</span></span><br><span class="line">    <span class="keyword">if</span>(j&gt;=weight[<span class="number">0</span>])</span><br><span class="line">        dp[<span class="number">0</span>][j]=value[<span class="number">0</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="4-遍历"><a href="#4-遍历" class="headerlink" title="4.遍历"></a>4.遍历</h2><p><font color=#09f>这一步就是遍历所有可能的i、j，通过第二步的状态转移方程更新dp数组的值，两个for循环即可实现：</font></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;n;i++)&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">1</span>;j&lt;=W;j++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(j &lt; weight[i])</span><br><span class="line">            dp[i][j] = dp[i - <span class="number">1</span>][j];</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            dp[i][j]=max(dp[i<span class="number">-1</span>][j],dp[i<span class="number">-1</span>][j-weight[i]]+value[i]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th align="center">i \ j</th>
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+<th align="center">3</th>
+<th align="center">4</th>
+<th align="center">5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">物品0</td>
+<td align="center">0</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">15</td>
+</tr>
+<tr>
+<td align="center">物品1</td>
+<td align="center">0</td>
+<td align="center">15</td>
+<td align="center">20</td>
+<td align="center">35</td>
+<td align="center">35</td>
+<td align="center">35</td>
+</tr>
+<tr>
+<td align="center">物品2</td>
+<td align="center">0</td>
+<td align="center">15</td>
+<td align="center">20</td>
+<td align="center">35</td>
+<td align="center">40</td>
+<td align="center">45</td>
+</tr>
+<tr>
+<td align="center">物品3</td>
+<td align="center">0</td>
+<td align="center">15</td>
+<td align="center">20</td>
+<td align="center">35</td>
+<td align="center">40</td>
+<td align="center">45</td>
+</tr>
+</tbody></table>
+<p><font color=#09f>最后返回dp[n-1] [W]即可。我们可以看到，动态规划求解的时间复杂度是O(nW)，显然要优于暴力求解。</font></p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>在<a target="_blank" rel="noopener" href="https://faccy.github.io/2021/01/22/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>中，我们提到了滚动数组这个概念，运用滚动数组将空间复杂度从O(n)优化到了O(1)，而这里也同样适用。我们通过状态转移方程可以发现，每一个元素值都是由上一行得来的，如果我们把上一行的内容拷贝到当前行，就可以把二维数组优化成一维数组。</p>
+<p>那么新的数组dp[j]表示将全部n个元素选择放入容量为j的背包能得到的最大价值；新的状态转移方程为：</p>
+<p>**dp [j]=max(dp [j],dp[j-weight[i]]+value[i])**。</p>
+<p>然后进行遍历：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;n;i++)&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j=W;j&gt;=weight[i];j--)&#123;</span><br><span class="line">        dp[j]=max(dp[j],dp[j-weight[i]]+value[i]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>你可能会发现，内层遍历变成了倒序，这是为什么捏？</p>
+<p><font color=#f00><strong>因为当我们用一维数组来遍历，由状态转移方程可知，需要当前元素值和更前面的某一个元素（dp[j-weight[i]]+value[i]），如果先序遍历，那么更前面的那个元素的值可能已经发生了改变，对应到实际操作中就是有物品被重复计入了；而如果采用后序遍历，就能保证前面的值依然是上一层的，没有被更新。</strong></font></p>
+<p>如果不明白可以将红字多看几遍，思考一下，或者代入数据实际操作一下就能发现问题所在。（有些数据可能得出的结果看不出问题，可以直接使用文章中的数据试验。）</p>
+</article><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/02/01/%E4%BA%8C%E5%88%86%E6%B3%95/"><img class="next-cover" src="https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">二分法</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> Comment</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="/null" onerror="this.onerror=null;this.src='/img/takagisan.png'" alt="avatar"/><div class="author-info__name">Faccy</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">5</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/faccy"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">Welcome!This is my Blog.</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#01%E8%83%8C%E5%8C%85"><span class="toc-number">1.</span> <span class="toc-text">01背包</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%A1%AE%E5%AE%9Adp%E6%95%B0%E7%BB%84%E5%90%AB%E4%B9%89"><span class="toc-number">1.1.</span> <span class="toc-text">1.确定dp数组含义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%89%BE%E5%87%BA%E7%8A%B6%E6%80%81%E8%BD%AC%E7%A7%BB%E6%96%B9%E7%A8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">2.找出状态转移方程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">1.3.</span> <span class="toc-text">3.初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E9%81%8D%E5%8E%86"><span class="toc-number">1.4.</span> <span class="toc-text">4.遍历</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A1%A5%E5%85%85"><span class="toc-number">1.5.</span> <span class="toc-text">补充</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/02/04/01%E8%83%8C%E5%8C%85%EF%BC%88%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E8%A7%A3%E6%B3%95%EF%BC%89/" title="01背包（动态规划解法）"><img src="https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="01背包（动态规划解法）"/></a><div class="content"><a class="title" href="/2021/02/04/01%E8%83%8C%E5%8C%85%EF%BC%88%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E8%A7%A3%E6%B3%95%EF%BC%89/" title="01背包（动态规划解法）">01背包（动态规划解法）</a><time datetime="2021-02-04T03:35:47.163Z" title="Created 2021-02-04 11:35:47">2021-02-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/02/01/%E4%BA%8C%E5%88%86%E6%B3%95/" title="二分法"><img src="https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="二分法"/></a><div class="content"><a class="title" href="/2021/02/01/%E4%BA%8C%E5%88%86%E6%B3%95/" title="二分法">二分法</a><time datetime="2021-02-01T07:52:25.240Z" title="Created 2021-02-01 15:52:25">2021-02-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/31/Markdown%E8%AF%AD%E6%B3%95/" title="Markdown语法"><img src="https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Markdown语法"/></a><div class="content"><a class="title" href="/2021/01/31/Markdown%E8%AF%AD%E6%B3%95/" title="Markdown语法">Markdown语法</a><time datetime="2021-01-31T04:05:51.982Z" title="Created 2021-01-31 12:05:51">2021-01-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/22/%E5%9B%9E%E6%BA%AF%E6%B3%95/" title="回溯法"><img src="https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="回溯法"/></a><div class="content"><a class="title" href="/2021/01/22/%E5%9B%9E%E6%BA%AF%E6%B3%95/" title="回溯法">回溯法</a><time datetime="2021-01-22T02:04:58.351Z" title="Created 2021-01-22 10:04:58">2021-01-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/22/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" title="动态规划"><img src="https://ae03.alicdn.com/kf/Hc97fc17e97604b7ea45d2a572e906e7fA.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="动态规划"/></a><div class="content"><a class="title" href="/2021/01/22/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" title="动态规划">动态规划</a><time datetime="2021-01-22T02:04:58.341Z" title="Created 2021-01-22 10:04:58">2021-01-22</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By Faccy</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="Toggle Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    let initData = {
+      el: '#vcomment',
+      appId: 'IVzrQA2HLBjY1RAgCNROveqV-gzGzoHsz',
+      appKey: 'bvRow3RFnv1u7Ff9kjAb9tFj',
+      placeholder: '别问，问就是不会',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('nick,mail'.split(','))
+    }
+    
+    if (false) {
+      const otherData = false
+      initData = Object.assign(initData, otherData)
+    }
+    
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script id="canvas_nest" defer="defer" color="255,0,255" opacity="0.7" zIndex="-1" count="99" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-nest.min.js"></script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="false"></script></div></body></html>
