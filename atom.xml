@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-02-04T06:41:05.272Z</updated>
+  <updated>2021-02-05T09:23:18.444Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,26 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>快速幂</title>
+    <link href="http://example.com/2021/02/05/%E5%BF%AB%E9%80%9F%E5%B9%82/"/>
+    <id>http://example.com/2021/02/05/%E5%BF%AB%E9%80%9F%E5%B9%82/</id>
+    <published>2021-02-05T07:51:35.998Z</published>
+    <updated>2021-02-05T09:23:18.444Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="快速幂"><a href="#快速幂" class="headerlink" title="快速幂"></a>快速幂</h1><p>快速幂的主要作用是求a^b对mod取模，尤其适合于指数b和mod很大的情况，它的原理也十分简单，我们举一个简单的例子：2^10%100</p><p>如果用循环乘法来实现，一共要执行10次，然后再对100取余数；</p><p>而快速幂的思想则是减少执行的次数，把2^10变成（2*2）^5，这样做的好处是用一次底数的平方，减少了一半的执行量，指数b越大，减少的操作越多。</p><p>我们继续，4^5还能不能继续这样变换呢？当然可以，但是因为5是奇数，我们不能将它直接除以2，但是可以提出一个4^1，这样我们又可以对剩下的4^4进行操作了，一直继续下去：</p><p><strong>4^1*4^4=4^1*16^2=4^1*256^1</strong></p><p>对于取模的问题，我们都知道，(a*b)%mod=((a%mod)*(b%mod))%mod，因此在每次乘以底数a的时候都取一次模即可。</p><p>然后我们用流程图来表示一下整个过程：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">start&#x3D;&gt;start: 开始</span><br><span class="line">operation0&#x3D;&gt;operation: 定义变量ans&#x3D;1</span><br><span class="line">condition&#x3D;&gt;condition: b是奇数？</span><br><span class="line">operation1&#x3D;&gt;operation: b&#x2F;&#x3D;2</span><br><span class="line">operation2&#x3D;&gt;operation: ans&#x3D;(a*a)%mod</span><br><span class="line">return&#x3D;&gt;operation: 返回ans</span><br><span class="line">isOdd&#x3D;&gt;operation: ans*&#x3D;a%mod</span><br><span class="line"></span><br><span class="line">start-&gt;operation0-&gt;condition</span><br><span class="line">condition(yes)-&gt;isOdd-&gt;operation1</span><br><span class="line">condition(no)-&gt;operation1</span><br><span class="line">operation1-&gt;operation2-&gt;return</span><br></pre></td></tr></table></figure><p>再将其转换为代码：</p><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="keyword">long</span> <span class="title">quick_pow</span><span class="params">(<span class="keyword">long</span> <span class="keyword">long</span> a,<span class="keyword">long</span> <span class="keyword">long</span> b,<span class="keyword">long</span> <span class="keyword">long</span> mod)</span></span>&#123;</span><br><span class="line"><span class="keyword">long</span> <span class="keyword">long</span> ans=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">while</span>(b&gt;<span class="number">0</span>)&#123;</span><br><span class="line"><span class="keyword">if</span>(b&amp;<span class="number">1</span>)&#123;<span class="comment">//b为奇数</span></span><br><span class="line">ans*=a%mod;</span><br><span class="line">&#125;</span><br><span class="line">b&gt;&gt;=<span class="number">1</span>;<span class="comment">//b除以2</span></span><br><span class="line">ans=(a*a)%mod;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> ans;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>其中b&amp;1相当于b%2==1；b&gt;&gt;=1相当于b/=2。</p><p>这里是运用了位运算，在C/C++中相比于逻辑运算执行速度更快。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;快速幂&quot;&gt;&lt;a href=&quot;#快速幂&quot; class=&quot;headerlink&quot; title=&quot;快速幂&quot;&gt;&lt;/a&gt;快速幂&lt;/h1&gt;&lt;p&gt;快速幂的主要作用是求a^b对mod取模，尤其适合于指数b和mod很大的情况，它的原理也十分简单，我们举一个简单的例子：2^10%10</summary>
+      
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>01背包（动态规划解法）</title>
